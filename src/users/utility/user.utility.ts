@@ -17,9 +17,9 @@ export class UserUtility {
     private userModel: Model<User>,
   ) {}
 
-  async getUserId(username: string): Promise<string> {
+  async getUserId(name: string): Promise<string> {
     const user = await this.userModel.findOne(
-      { name: username },
+      { name: name },
       (err: Error) => {
         if (err) {
           throw new HttpException(

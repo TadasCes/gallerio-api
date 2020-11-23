@@ -6,6 +6,9 @@ import { MoviesModule } from './movies/movies.module';
 import { AuthModule } from './auth/auth.module';
 import { AppController } from './app.controller';
 import { ConfigModule } from 'nestjs-dotenv';
+import { MulterModule } from '@nestjs/platform-express';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -13,8 +16,12 @@ import { ConfigModule } from 'nestjs-dotenv';
     MongooseModule.forRoot('mongodb://localhost:27017/nest'),
     DatabaseModule,
     MoviesModule,
+    MulterModule,
     AuthModule,
-    ConfigModule.forRoot()
+    ConfigModule.forRoot(),
+    // ServeStaticModule.forRoot({
+    //   rootPath: join(__dirname, '../uploads')
+    // })
   ],
   controllers: [AppController],
 })
