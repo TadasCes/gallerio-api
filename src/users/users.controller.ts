@@ -17,16 +17,14 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { UserDto } from './model/user.dto';
 import { UsersService } from './users.service';
-import { FriendsService } from './friends.service';
-import { User } from './user.interface';
+import { User } from './model/interfaces/IUser';
 import { AuthService } from 'src/auth/auth.service';
 import { LocalAuthGuard } from 'src/auth/local-auth.guard';
-import { UpdatePasswordDto } from './model/updatePassword.dto';
+import { UpdatePasswordDto } from './model/dto/updatePassword.dto';
 import { ConfigService } from 'nestjs-dotenv';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import { RegisterDto } from './model/register.dto';
+import { RegisterDto } from './model/dto/register.dto';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { PictureService } from './pictures.service';
 import { diskStorage } from 'multer';
@@ -37,7 +35,9 @@ import { mkdirSync } from 'fs';
 import { readFile } from 'fs';
 import { createWriteStream } from 'fs';
 import { createReadStream } from 'fs';
+import { UserDto } from './model/dto/user.dto';
 
+// TODO Iskelt sita i atskira faila
 const multerOptions = {
   storage: diskStorage({
     destination: (req: any, file: any, cb: any) => {
@@ -69,17 +69,18 @@ const multerOptions = {
   },
 };
 
+// TODO isskirt nuotraukas ir draugus i atskirus failus
+// TODO visur pakeist, kad naudotu email, o ne username
 @Catch(HttpException)
 @Controller('users')
 export class UsersController {
   constructor(
     private userService: UsersService,
-    private friendsService: FriendsService,
     private pictureService: PictureService,
     private readonly configService: ConfigService,
   ) {}
 
-  @UseGuards(JwtAuthGuard)
+  //@UseGuards(JwtAuthGuard)
   @Get()
   async getAllUsers(): Promise<User[]> {
     return this.userService.getAllUsers();
@@ -90,7 +91,7 @@ export class UsersController {
     return this.userService.getOneUser(name);
   }
 
-  @UseGuards(JwtAuthGuard)
+  //@UseGuards(JwtAuthGuard)
   @Post()
   async createUser(@Body() userDto: UserDto): Promise<User> {
     return this.userService.createUser(userDto);
@@ -101,7 +102,7 @@ export class UsersController {
     return this.userService.registerNewUser(registerDto);
   }
 
-  @UseGuards(JwtAuthGuard)
+  //@UseGuards(JwtAuthGuard)
   @Put(':name/update-password')
   async updateUserPassword(
     @Param('name') name: string,
@@ -110,82 +111,56 @@ export class UsersController {
     return this.userService.updateUserPassword(name, passwordDto);
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Put(':name')
-  async updateUser(@Param('name') name: string, @Body() userDto: UserDto) {
-    return this.userService.updateUser(name, userDto);
-  }
+  // //@UseGuards(JwtAuthGuard)
+  // @Put(':name')
+  // async updateUser(@Param('name') name: string, @Body() userDto: UserDto) {
+  //   return this.userService.updateUser(name, userDto);
+  // }
 
-  @UseGuards(JwtAuthGuard)
-  @Post(':name/add-pictures')
-  @UseInterceptors(FilesInterceptor('files', 20, multerOptions))
-  async uploadPictures(
-    @Param('name') name: string,
-    @UploadedFiles() files: Express.Multer.File[],
-  ) {
-    return this.pictureService.uploadPictures(name, files);
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Get(':name/pictures')
-  async getPictures(@Param('name') name: string) {
-    return this.pictureService.getPictures(name);
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Get(':name/pictures/download')
-  async downloadPicture(@Res() res, @Req() req) {
-    res.sendFile(req.headers.url);
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Put(':name/pictures/:picture')
-  async updatePicture(
-    @Param('name') name: string,
-    @Param('picture') picture: string,
-    @Body('description') description: string,
-  ) {
-    return this.pictureService.updatePicture(name, picture, description);
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Delete(':name/pictures/:picture')
-  async deletePicture(
-    @Param('name') name: string,
-    @Param('picture') picture: string,
-  ) {
-    return this.pictureService.deletePicture(name, picture);
-  }
-
-  @UseGuards(JwtAuthGuard)
+  //@UseGuards(JwtAuthGuard)
   @Delete(':name')
   async deleteUser(@Param('name') name: string) {
     return this.userService.deleteUser(name);
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Get(':name/friends')
-  async getUserFriendList(@Param('name') name: string) {
-    return this.friendsService.getUserFriendList(name).catch(err => {
-      throw new Error(err);
-    });
-  }
+  // //@UseGuards(JwtAuthGuard)
+  // @Post(':name/add-pictures')
+  // @UseInterceptors(FilesInterceptor('files', 20, multerOptions))
+  // async uploadPictures(
+  //   @Param('name') name: string,
+  //   @UploadedFiles() files: Express.Multer.File[],
+  // ) {
+  //   return this.pictureService.uploadPictures(name, files);
+  // }
 
-  @UseGuards(JwtAuthGuard)
-  @Put(':name/friends/add-friend')
-  async addFriendToList(
-    @Param('name') name: string,
-    @Body('friend') friend: string,
-  ) {
-    return this.friendsService.addFriendToList(name, friend);
-  }
+  // //@UseGuards(JwtAuthGuard)
+  // @Get(':name/pictures')
+  // async getPictures(@Param('name') name: string) {
+  //   return this.pictureService.getPictures(name);
+  // }
 
-  @UseGuards(JwtAuthGuard)
-  @Delete(':name/friends/remove-friend')
-  async removeFriendFromList(
-    @Param('name') name: string,
-    @Body('friend') friend: string,
-  ) {
-    return this.friendsService.removeFriendFromList(name, friend);
-  }
+  // //@UseGuards(JwtAuthGuard)
+  // @Get(':name/pictures/download')
+  // async downloadPicture(@Res() res, @Req() req) {
+  //   res.sendFile(req.headers.url);
+  // }
+
+  // //@UseGuards(JwtAuthGuard)
+  // @Put(':name/pictures/:picture')
+  // async updatePicture(
+  //   @Param('name') name: string,
+  //   @Param('picture') picture: string,
+  //   @Body('description') description: string,
+  // ) {
+  //   return this.pictureService.updatePicture(name, picture, description);
+  // }
+
+  // //@UseGuards(JwtAuthGuard)
+  // @Delete(':name/pictures/:picture')
+  // async deletePicture(
+  //   @Param('name') name: string,
+  //   @Param('picture') picture: string,
+  // ) {
+  //   return this.pictureService.deletePicture(name, picture);
+  // }
 }

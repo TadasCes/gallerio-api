@@ -1,21 +1,22 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsOptional, MinLength } from 'class-validator';
 
+// FIXME sutvarkyt validators
+// TODO iskelt visus DTO i atskira folderi
+// READ iskelt visus DTO i atskira folderi
 export class RegisterDto {
   @ApiProperty()
-  @MinLength(3)
-  name: string;
+  @IsEmail()
+  email: string;
 
   @ApiProperty()
   @MinLength(3)
-  lastName: string;
+  username: string;
 
   @IsOptional()
   @MinLength(8)
   @ApiProperty()
   password: string;
 
-  @ApiProperty()
-  @IsEmail()
-  email: string;
+
 }

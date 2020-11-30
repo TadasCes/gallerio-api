@@ -10,6 +10,7 @@ import {
   MinLength,
 } from 'class-validator';
 
+// FIXME nepamenu sito. Sutvarkyt password validator
 export class UpdatePasswordDto {
   @ApiProperty()
   @IsOptional()

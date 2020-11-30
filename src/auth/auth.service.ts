@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import * as md5 from 'md5';
-import { ILogin } from 'src/users/model/ILogin';
+import { ILogin } from 'src/users/model/interfaces/ILogin';
 
 @Injectable()
 export class AuthService {
@@ -21,6 +21,7 @@ export class AuthService {
     return null;
   }
 
+  // FIXME padaryt, kad naudotu email, o ne username. Cia ir visur kitur
   async login(loginInfo: ILogin) {
     const user = await this.usersService.getOneUser(loginInfo.username);
     const payload = { username: loginInfo.username, userId: user._id };

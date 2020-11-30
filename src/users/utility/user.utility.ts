@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { response } from 'express';
 import mongoose, { Model, Types } from 'mongoose';
-import { User } from '../user.interface';
+import { User } from '../model/interfaces/IUser';
 import { InjectModel } from '@nestjs/mongoose';
 
 @Injectable()
@@ -17,30 +17,30 @@ export class UserUtility {
     private userModel: Model<User>,
   ) {}
 
-  async getUserId(name: string): Promise<string> {
-    const user = await this.userModel.findOne(
-      { name: name },
-      (err: Error) => {
-        if (err) {
+  async getUserIdFromEmail(email: string): Promise<string> {
+    return this.userModel
+      .findOne({ email: email })
+      .then(user => {
+        return user._id;
+      })
+      .catch(error => {
+        if (error.HttpStatus == 404) {
+          throw new HttpException(
+            {
+              status: HttpStatus.NOT_FOUND,
+              error: 'User not found',
+            },
+            HttpStatus.NOT_FOUND,
+          );
+        } else {
           throw new HttpException(
             {
               status: HttpStatus.INTERNAL_SERVER_ERROR,
-              error: err.message,
+              error: error.message,
             },
             HttpStatus.INTERNAL_SERVER_ERROR,
           );
         }
-      },
-    );
-    if (user === null) {
-      throw new HttpException(
-        {
-          status: HttpStatus.NOT_FOUND,
-          error: 'User not found',
-        },
-        HttpStatus.NOT_FOUND,
-      );
-    }
-    return user._id.toString();
+      });
   }
 }

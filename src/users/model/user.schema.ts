@@ -1,23 +1,19 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose'
-import { IPicture } from './IPicture';
+import { IGallery } from './interfaces/IGallery';
+import { IPicture } from './interfaces/IPicture';
 
+// TODO padaryt, kad pagrindinis butu email, o ne name
 @Schema()
 export class User extends Document {
-  @Prop({ 
-      required: true,
-      unique: true,
-      type: String 
-    })
-  name: string;
-
+  
   @Prop({ 
     required: true,
     unique: true,
     type: String 
   })
-  lastName: string;
-
+  email: string;
+  
   @Prop({ 
     required: true,
     type: String 
@@ -26,9 +22,28 @@ export class User extends Document {
 
   @Prop({ 
     required: true,
+    unique: true,
     type: String 
   })
-  email: string;
+  username: string;
+
+  @Prop({ 
+    required: false,
+      type: String 
+    })
+  firstName: string;
+
+  @Prop({ 
+    required: false,
+    type: String 
+  })
+  lastName: string;
+
+  @Prop({ 
+    required: false,
+    type: String 
+  })
+  profileImage: string;
 
   @Prop({ 
     required: false,
@@ -40,32 +55,20 @@ export class User extends Document {
     required: false,
     type: String 
   })
+  bio: string;
+
+  @Prop({ 
+    required: false,
+    type: String 
+  })
   website: string;
 
   @Prop({
     required: false,
-    type: [String]
+    type: Array<IGallery>()
   })
-  friends: Array<string>
-
-  @Prop({
-    required: false,
-    type: Object
-  })
-  address: IAddress
-
-  @Prop({
-    required: false,
-    type: Array<IPicture>()
-  })
-  pictures: Array<IPicture>
+  galleries: IGallery[]
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
 
-export interface IAddress {
-  country: string;
-  city: string;
-  streetAddress: string;
-  ziPCode: number;
-}
